@@ -24,44 +24,26 @@
 
 package io.airbyte.integrations.destination.rockset;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.api.client.json.Json;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.rockset.client.RocksetClient;
 import com.rockset.client.api.QueriesApi;
-import com.rockset.client.model.DeleteCollectionResponse;
-import com.rockset.client.model.DeleteDocumentsRequest;
-import com.rockset.client.model.DeleteDocumentsRequestData;
-import com.rockset.client.model.DeleteDocumentsResponse;
-import com.rockset.client.model.QueryParameter;
 import com.rockset.client.model.QueryRequest;
 import com.rockset.client.model.QueryRequestSql;
-import com.rockset.client.model.QueryResponse;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Response;
-import io.airbyte.commons.io.IOs;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.commons.lang.Exceptions;
 import io.airbyte.commons.resources.MoreResources;
 import io.airbyte.integrations.standardtest.destination.DestinationAcceptanceTest;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.collections.Maps;
 import org.testng.collections.Sets;
 
 public class RocksetDestinationAcceptanceTest extends DestinationAcceptanceTest {
@@ -93,7 +75,10 @@ public class RocksetDestinationAcceptanceTest extends DestinationAcceptanceTest 
 
   @Override
   protected List<JsonNode> retrieveRecords(
-      TestDestinationEnv testEnv, String streamName, String namespace, JsonNode streamSchema)
+                                           TestDestinationEnv testEnv,
+                                           String streamName,
+                                           String namespace,
+                                           JsonNode streamSchema)
       throws IOException {
 
     QueriesApi queryClient = new QueriesApi(RocksetUtils.apiClientFromConfig(getConfig()));
@@ -150,11 +135,11 @@ public class RocksetDestinationAcceptanceTest extends DestinationAcceptanceTest 
       final RocksetClient client = RocksetUtils.clientFromConfig(getConfig());
       String workspace = getConfig().get("workspace").asText();
       collectionNames.forEach(
-          cn ->
-              Exceptions.toRuntime(
-                  () -> RocksetUtils.deleteAllDocsInCollection(client, workspace, cn)));
+          cn -> Exceptions.toRuntime(
+              () -> RocksetUtils.deleteAllDocsInCollection(client, workspace, cn)));
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
+
 }

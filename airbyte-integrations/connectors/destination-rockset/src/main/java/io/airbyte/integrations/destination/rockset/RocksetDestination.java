@@ -24,37 +24,26 @@
 
 package io.airbyte.integrations.destination.rockset;
 
+import static io.airbyte.integrations.destination.rockset.RocksetUtils.WORKSPACE_ID;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.rockset.client.model.AddDocumentsRequest;
-import com.rockset.client.model.CreateWorkspaceRequest;
-import com.rockset.client.model.CreateWorkspaceResponse;
-import com.rockset.client.ApiException;
 import com.rockset.client.RocksetClient;
-import com.rockset.jdbc.RocksetDriver;
-import io.airbyte.commons.json.Jsons;
+import com.rockset.client.model.AddDocumentsRequest;
 import io.airbyte.integrations.BaseConnector;
-import io.airbyte.integrations.destination.jdbc.AbstractJdbcDestination;
 import io.airbyte.integrations.base.AirbyteMessageConsumer;
 import io.airbyte.integrations.base.Destination;
 import io.airbyte.integrations.base.IntegrationRunner;
-import io.airbyte.integrations.destination.jdbc.DefaultSqlOperations;
 import io.airbyte.protocol.models.AirbyteConnectionStatus;
 import io.airbyte.protocol.models.AirbyteConnectionStatus.Status;
 import io.airbyte.protocol.models.AirbyteMessage;
 import io.airbyte.protocol.models.ConfiguredAirbyteCatalog;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.airbyte.integrations.destination.rockset.RocksetUtils.WORKSPACE_ID;
 
 public class RocksetDestination extends BaseConnector implements Destination {
 
@@ -79,7 +68,7 @@ public class RocksetDestination extends BaseConnector implements Destination {
       RocksetUtils.waitUntilCollectionReady(client, workspace, cname);
 
       // Write a single document
-      Map<String, String> dummyRecord  = ImmutableMap.of("k1", "val1");
+      Map<String, String> dummyRecord = ImmutableMap.of("k1", "val1");
       AddDocumentsRequest req = new AddDocumentsRequest();
       req.addDataItem(mapper.convertValue(dummyRecord, new TypeReference<>() {}));
       client.addDocuments(workspace, cname, req);
@@ -101,9 +90,11 @@ public class RocksetDestination extends BaseConnector implements Destination {
 
   @Override
   public AirbyteMessageConsumer getConsumer(
-      JsonNode config,
-      ConfiguredAirbyteCatalog catalog,
-      Consumer<AirbyteMessage> outputRecordCollector) throws Exception {
+                                            JsonNode config,
+                                            ConfiguredAirbyteCatalog catalog,
+                                            Consumer<AirbyteMessage> outputRecordCollector)
+      throws Exception {
     return new RocksetWriteApiConsumer(config, catalog, outputRecordCollector);
   }
+
 }
