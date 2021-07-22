@@ -35,3 +35,7 @@ The Rockset Airbyte destination is quite simple. To get started, you will need:
 With your api key entered during the destination creation step and a workspace name of your choice
 (which does not need to exist prior to creating the connection), you are ready to get started using Airbyte
 on top of Rockset!
+
+| Version | Date       | Pull Request | Subject |
+| :------ | :--------  | :-----       | :------ |
+| 0.1.1   | 2021-07-21 | [4780](https://github.com/airbytehq/airbyte/pull/4780) | Initial Release|
