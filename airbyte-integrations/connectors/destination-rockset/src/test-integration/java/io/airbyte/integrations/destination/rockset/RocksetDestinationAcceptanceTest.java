@@ -34,10 +34,12 @@ import com.rockset.client.api.QueriesApi;
 import com.rockset.client.model.QueryRequest;
 import com.rockset.client.model.QueryRequestSql;
 import com.squareup.okhttp.Response;
+import io.airbyte.commons.io.IOs;
 import io.airbyte.commons.json.Jsons;
 import io.airbyte.commons.lang.Exceptions;
 import io.airbyte.commons.resources.MoreResources;
 import io.airbyte.integrations.standardtest.destination.DestinationAcceptanceTest;
+import java.nio.file.Path;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -61,7 +63,7 @@ public class RocksetDestinationAcceptanceTest extends DestinationAcceptanceTest 
 
   @Override
   protected JsonNode getConfig() throws IOException {
-    return Jsons.deserialize(MoreResources.readResource("secrets/config.json"));
+    return Jsons.deserialize(IOs.readFile(Path.of("secrets/config.json")));
   }
 
   @Override
