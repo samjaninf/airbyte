@@ -31,7 +31,7 @@ from airbyte_cdk.models import SyncMode
 from airbyte_cdk.sources.streams.http import HttpStream
 
 from .common import URL_BASE, PageToken, SourceContext
-from .schemas import DisplayAdGroup, DisplayCampaign, DisplayCreatives, DisplayProductAds, DisplayTargeting, JSModel, Profile, Types
+from .schemas import DisplayAdGroup, DisplayCampaign, DisplayProductAds, DisplayTargeting, JSModel, Profile, Types
 
 
 # Basic full refresh stream
@@ -203,18 +203,3 @@ class SponsoredDisplayTargetings(PaginationStream):
 
     def path(self, **kvargs) -> str:
         return "sd/targets"
-
-
-class SponsoredDisplayCreatives(PaginationStream):
-    """
-    This stream corresponds to Amazon Advertising API - Sponsored Displays Creatives
-    https://advertising.amazon.com/API/docs/en-us/sponsored-display/3-0/openapi#/Creatives
-    """
-
-    primary_key = "creativeId"
-    model = DisplayCreatives
-
-    flattern_properties = ["properties"]
-
-    def path(self, **kvargs) -> str:
-        return "sd/creatives"

@@ -23,7 +23,7 @@
 #
 from .common import JSModel, MetricsReport
 from .profile import Profile, Types
-from .sponsored_display import DisplayAdGroup, DisplayCampaign, DisplayCreatives, DisplayProductAds, DisplayTargeting
+from .sponsored_display import DisplayAdGroup, DisplayCampaign, DisplayProductAds, DisplayTargeting
 
 __all__ = [
     "Types",
@@ -31,7 +31,6 @@ __all__ = [
     "JSModel",
     "DisplayAdGroup",
     "DisplayCampaign",
-    "DisplayCreatives",
     "DisplayProductAds",
     "DisplayTargeting",
     "MetricsReport",

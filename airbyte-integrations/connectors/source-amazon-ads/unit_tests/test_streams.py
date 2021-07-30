@@ -36,7 +36,6 @@ def setup_responses(
     profiles_response=None,
     campaigns_response=None,
     adgroups_response=None,
-    creatives_response=None,
     targeting_response=None,
     product_ads_response=None,
 ):
@@ -63,12 +62,6 @@ def setup_responses(
             "https://advertising-api.amazon.com/sd/adGroups",
             body=adgroups_response,
         )
-    if creatives_response:
-        responses.add(
-            responses.GET,
-            "https://advertising-api.amazon.com/sd/creatives",
-            body=creatives_response,
-        )
     if targeting_response:
         responses.add(
             responses.GET,
@@ -89,7 +82,7 @@ def test_streams_profile(test_config, profiles_response):
 
     source = SourceAmazonAds()
     streams = source.streams(test_config)
-    assert len(streams) == 7
+    assert len(streams) == 6
     profile_stream = streams[0]
     assert profile_stream.name == "profiles"
     campaigns_stream = streams[1]
@@ -192,17 +185,15 @@ def test_streams_campaigns_pagination(mocker, test_config, profiles_response, ca
         ("sponsored_display_ad_groups", "sd/adGroups"),
         ("sponsored_display_product_ads", "sd/productAds"),
         ("sponsored_display_targetings", "sd/targets"),
-        ("sponsored_display_creatives", "sd/creatives"),
     ],
 )
 @responses.activate
 def test_streams_adgroup(
-    test_config, stream_name, endpoint, profiles_response, adgroups_response, creatives_response, targeting_response, product_ads_response
+    test_config, stream_name, endpoint, profiles_response, adgroups_response, targeting_response, product_ads_response
 ):
     setup_responses(
         profiles_response=profiles_response,
         adgroups_response=adgroups_response,
-        creatives_response=creatives_response,
         targeting_response=targeting_response,
         product_ads_response=product_ads_response,
     )

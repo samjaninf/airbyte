@@ -105,9 +105,3 @@ class DisplayTargeting(JSModel):
     expressionType: ExpressionType
     expression: str
     resolvedExpression: str
-
-
-class DisplayCreatives(JSModel):
-    creativeId: Decimal
-    moderationStatus: ModerationStatus
-    properties: str = None
