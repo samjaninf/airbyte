@@ -8,13 +8,13 @@ if (ExecutionEnvironment.canUseDOM) {
       .then((resp) => resp.json())
       .then((summary) => {
         const status = summary.page.status;
-        const el = document.getElementById("cloudStatusLink");
-        el.classList.forEach((className) => {
+        const el = document.querySelector(".cloudStatusLink");
+        el?.classList.forEach((className) => {
           if (className.startsWith("status-")) {
             el.classList.remove(className);
           }
         });
-        el.classList.add(`status-${status.toLowerCase()}`)
+        el?.classList.add(`status-${status.toLowerCase()}`)
       });
   }
 

@@ -17,6 +17,7 @@ from common_utils import GoogleApi, Logger
 
 from .models import DEFAULT_SECRET_FILE, RemoteSecret, Secret
 
+
 DEFAULT_SECRET_FILE_WITH_EXT = DEFAULT_SECRET_FILE + ".json"
 
 GSM_SCOPES = ("https://www.googleapis.com/auth/cloud-platform",)
@@ -117,6 +118,9 @@ class SecretsManager:
                 enabled_versions = [version["name"] for version in versions_data["versions"] if version["state"] == "ENABLED"]
                 if len(enabled_versions) > 1:
                     self.logger.critical(f"{log_name} should have one enabled version at the same time!!!")
+                if not enabled_versions:
+                    self.logger.warning(f"{log_name} doesn't have enabled versions for {secret_name}")
+                    continue
                 enabled_version = enabled_versions[0]
                 secret_url = f"https://secretmanager.googleapis.com/v1/{enabled_version}:access"
                 secret_data = self.api.get(secret_url)

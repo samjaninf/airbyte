@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 from source_s3.v4 import Config, SourceS3, SourceS3StreamReader
 
+
 _V3_FIELDS = ["dataset", "format", "path_pattern", "provider", "schema"]
 TEST_FILES_FOLDER = Path(__file__).resolve().parent.parent.joinpath("sample_files")
 
@@ -18,7 +19,9 @@ class SourceTest(unittest.TestCase):
         self._source = SourceS3(
             self._stream_reader,
             Config,
-            str(TEST_FILES_FOLDER.joinpath("catalog.json"))
+            SourceS3.read_catalog(str(TEST_FILES_FOLDER.joinpath("catalog.json"))),
+            SourceS3.read_config(str(TEST_FILES_FOLDER.joinpath("v3_config.json"))),
+            None,
         )
 
     @patch("source_s3.v4.source.emit_configuration_as_airbyte_control_message")

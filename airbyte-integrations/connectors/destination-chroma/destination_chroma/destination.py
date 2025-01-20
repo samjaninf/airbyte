@@ -3,11 +3,12 @@
 #
 
 
+import logging
 from typing import Any, Iterable, Mapping
 
-from airbyte_cdk import AirbyteLogger
 from airbyte_cdk.destinations import Destination
-from airbyte_cdk.destinations.vector_db_based.embedder import CohereEmbedder, Embedder, FakeEmbedder, FromFieldEmbedder, OpenAIEmbedder
+from airbyte_cdk.destinations.vector_db_based.document_processor import DocumentProcessor
+from airbyte_cdk.destinations.vector_db_based.embedder import Embedder, create_from_config
 from airbyte_cdk.destinations.vector_db_based.indexer import Indexer
 from airbyte_cdk.destinations.vector_db_based.writer import Writer
 from airbyte_cdk.models import (
@@ -22,30 +23,25 @@ from destination_chroma.config import ConfigModel
 from destination_chroma.indexer import ChromaIndexer
 from destination_chroma.no_embedder import NoEmbedder
 
-BATCH_SIZE = 128
 
-embedder_map = {
-    "openai": OpenAIEmbedder,
-    "cohere": CohereEmbedder,
-    "fake": FakeEmbedder,
-    "from_field": FromFieldEmbedder,
-    "no_embedding": NoEmbedder,
-}
+BATCH_SIZE = 128
 
 
 class DestinationChroma(Destination):
-
     indexer: Indexer
     embedder: Embedder
 
     def _init_indexer(self, config: ConfigModel):
-        self.embedder = embedder_map[config.embedding.mode](config.embedding)
+        self.embedder = (
+            create_from_config(config.embedding, config.processing)
+            if config.embedding.mode != "no_embedding"
+            else NoEmbedder(config.embedding)
+        )
         self.indexer = ChromaIndexer(config.indexing)
 
     def write(
         self, config: Mapping[str, Any], configured_catalog: ConfiguredAirbyteCatalog, input_messages: Iterable[AirbyteMessage]
     ) -> Iterable[AirbyteMessage]:
-
         """
         Reads the input stream of messages, config, and catalog to write data to the destination.
 
@@ -63,10 +59,12 @@ class DestinationChroma(Destination):
 
         config_model = ConfigModel.parse_obj(config)
         self._init_indexer(config_model)
-        writer = Writer(config_model.processing, self.indexer, self.embedder, batch_size=BATCH_SIZE)
+        writer = Writer(
+            config_model.processing, self.indexer, self.embedder, batch_size=BATCH_SIZE, omit_raw_text=config_model.omit_raw_text
+        )
         yield from writer.write(configured_catalog, input_messages)
 
-    def check(self, logger: AirbyteLogger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
+    def check(self, logger: logging.Logger, config: Mapping[str, Any]) -> AirbyteConnectionStatus:
         """
         Tests if the input configuration can be used to successfully connect to the destination with the needed permissions
             e.g: if a provided API token or password can be used to connect and write to the destination.
@@ -78,10 +76,10 @@ class DestinationChroma(Destination):
 
         :return: AirbyteConnectionStatus indicating a Success or Failure
         """
-        self._init_indexer(ConfigModel.parse_obj(config))
-        embedder_error = self.embedder.check()
-        indexer_error = self.indexer.check()
-        errors = [error for error in [embedder_error, indexer_error] if error is not None]
+        parsed_config = ConfigModel.parse_obj(config)
+        self._init_indexer(parsed_config)
+        checks = [self.embedder.check(), self.indexer.check(), DocumentProcessor.check_config(parsed_config.processing)]
+        errors = [error for error in checks if error is not None]
         if len(errors) > 0:
             return AirbyteConnectionStatus(status=Status.FAILED, message="\n".join(errors))
         else:
